@@ -377,3 +377,7 @@ function reporteComprasSimple() {
   // init
   load(); renderCategorias(); renderFiltros(); renderProductos();
 })();
+if (navigator.serviceWorker.controller) {
+  navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+}
+
