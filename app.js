@@ -263,7 +263,44 @@
     });
     return out.trim();
   }
+function reporteComprasSimple() {
+  const header = buildHeader('Reporte de Compras Simple');
+  const need = db.productos.filter(p => Number(p.stock) < Number(p.min));
+  if (need.length === 0) return header + '\nNo hay compras sugeridas.\n';
 
+  // Orden fijo de categorías
+  const ordenCategorias = ["Carnes", "Vegetales", "Viveres"];
+
+  // Agrupar por categoría
+  const map = {};
+  need.forEach(p => {
+    const cat = getCatName(p.categoriaId);
+    (map[cat] = map[cat] || []).push(p);
+  });
+
+  // Ordenar categorías según el orden fijo
+  const cats = Object.keys(map).sort((a, b) => {
+    let ia = ordenCategorias.indexOf(a);
+    let ib = ordenCategorias.indexOf(b);
+    if (ia === -1) ia = 99; // categorías extra al final
+    if (ib === -1) ib = 99;
+    return ia - ib;
+  });
+
+  let out = header + '\nCOMPRAS:\n';
+  cats.forEach(cat => {
+    // Ordenar productos por nombre
+    map[cat].sort((a, b) => a.nombre.localeCompare(b.nombre));
+    out += `\n${cat}\n`;
+    map[cat].forEach(p => {
+      const falta = Math.max(0, Number(p.min) - Number(p.stock));
+      out += `${p.nombre}\nCompra: ${fmtNumber(falta)} ${p.unidad}\n\n`;
+    });
+  });
+
+  return out.trim();
+}
+  
   function reporteAlertas(){
     const header = buildHeader('Alertas de Stock');
     const alertas = db.productos.filter(p=> Number(p.stock)<=0 || Number(p.stock)<Number(p.min));
