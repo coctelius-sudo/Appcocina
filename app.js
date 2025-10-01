@@ -327,7 +327,8 @@ function reporteComprasSimple() {
   $('#genInventario').onclick = ()=> showReporte(reporteInventario());
   $('#genCompras').onclick = ()=> showReporte(reporteCompras());
   $('#genAlertas').onclick = ()=> showReporte(reporteAlertas());
-
+  $('#genComprasSimple').onclick = () => showReporte(reporteComprasSimple());
+  
   $('#copyReporte').onclick = async ()=>{
     try{
       await navigator.clipboard.writeText($('#reporteTexto').value);
