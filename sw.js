@@ -1,7 +1,7 @@
-// sw.js – Service Worker para Cocina Inventario PWA
+// sw.js – Service Worker actualizado para Cocina Inventario PWA
 
-// Cambia esta versión cada vez que actualices archivos
-const CACHE_NAME = 'cocina-inventario-v3'; 
+// Cambia la versión cada vez que actualices archivos críticos
+const CACHE_NAME = 'cocina-inventario-v10'; 
 
 // Archivos a cachear
 const FILES_TO_CACHE = [
@@ -10,14 +10,14 @@ const FILES_TO_CACHE = [
   '/app.js',
   '/styles.css',
   '/manifest.webmanifest',
-  // si tienes iconos u otros archivos, agrégalos aquí
+  // agrega aquí cualquier icono u otro archivo que uses
 ];
 
 // Instalación: cachear archivos
 self.addEventListener('install', (evt) => {
   evt.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('[SW] Cacheando archivos');
+      console.log('[SW] Cacheando archivos versión nueva');
       return cache.addAll(FILES_TO_CACHE);
     })
   );
@@ -47,12 +47,3 @@ self.addEventListener('fetch', (evt) => {
     caches.match(evt.request).then((resp) => {
       return resp || fetch(evt.request);
     })
-  );
-});
-
-// Mensajes para actualizar SW inmediatamente
-self.addEventListener('message', (evt) => {
-  if (evt.data && evt.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-});
