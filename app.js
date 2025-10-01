@@ -380,4 +380,22 @@ function reporteComprasSimple() {
 if (navigator.serviceWorker.controller) {
   navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
 }
+// Detectar nueva versión del Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').then(reg => {
+    // Escuchar cambios en el SW
+    reg.addEventListener('updatefound', () => {
+      const newWorker = reg.installing;
+      newWorker.addEventListener('statechange', () => {
+        if (newWorker.state === 'installed') {
+          if (navigator.serviceWorker.controller) {
+            // Hay nueva versión disponible
+            const aviso = confirm("¡Nueva versión disponible! ¿Deseas recargar para actualizar?");
+            if (aviso) window.location.reload();
+          }
+        }
+      });
+    });
+  }).catch(err => console.log("SW registration failed:", err));
+}
 
