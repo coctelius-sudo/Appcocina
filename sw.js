@@ -1,21 +1,58 @@
-const CACHE = 'cocina-inventario-v1';
-const ASSETS = [
-  './','./index.html','./styles.css','./app.js','./manifest.webmanifest',
-  './icons/icon-192.png','./icons/icon-512.png'
+// sw.js – Service Worker para Cocina Inventario PWA
+
+// Cambia esta versión cada vez que actualices archivos
+const CACHE_NAME = 'cocina-inventario-v2'; 
+
+// Archivos a cachear
+const FILES_TO_CACHE = [
+  '/',
+  '/index.html',
+  '/app.js',
+  '/styles.css',
+  '/manifest.webmanifest',
+  // si tienes iconos u otros archivos, agrégalos aquí
 ];
-self.addEventListener('install', e=>{
-  e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));
-});
-self.addEventListener('activate', e=>{
-  e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
-});
-self.addEventListener('fetch', e=>{
-  const req = e.request;
-  e.respondWith(
-    caches.match(req).then(cached => cached || fetch(req).then(res=>{
-      const copy = res.clone();
-      caches.open(CACHE).then(c=>c.put(req, copy));
-      return res;
-    }).catch(()=> caches.match('./index.html')))
+
+// Instalación: cachear archivos
+self.addEventListener('install', (evt) => {
+  evt.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log('[SW] Cacheando archivos');
+      return cache.addAll(FILES_TO_CACHE);
+    })
   );
+  self.skipWaiting(); // activa SW inmediatamente
+});
+
+// Activación: limpiar caches antiguos
+self.addEventListener('activate', (evt) => {
+  evt.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            console.log('[SW] Eliminando cache vieja:', key);
+            return caches.delete(key);
+          }
+        })
+      )
+    )
+  );
+  self.clients.claim(); // toma control inmediato
+});
+
+// Interceptar requests y responder desde cache si existe
+self.addEventListener('fetch', (evt) => {
+  evt.respondWith(
+    caches.match(evt.request).then((resp) => {
+      return resp || fetch(evt.request);
+    })
+  );
+});
+
+// Mensajes para actualizar SW inmediatamente
+self.addEventListener('message', (evt) => {
+  if (evt.data && evt.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
