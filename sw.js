@@ -1,7 +1,7 @@
 // sw.js – Service Worker para Cocina Inventario PWA
 
 // Cambia esta versión cada vez que actualices archivos
-const CACHE_NAME = 'cocina-inventario-v2'; 
+const CACHE_NAME = 'cocina-inventario-v3'; 
 
 // Archivos a cachear
 const FILES_TO_CACHE = [
